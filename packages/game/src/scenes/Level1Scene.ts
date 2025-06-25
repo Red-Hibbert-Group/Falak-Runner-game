@@ -107,9 +107,9 @@ export class Level1Scene extends Phaser.Scene {
     // Create static group for platforms (proper physics bodies)
     this.groundGroup = this.physics.add.staticGroup();
 
-    // Create ground tiles across the level
+    // Dynamic ground tiling based on viewport
     const tileWidth = 256; // Stone_Walkway_Slice is 256px wide
-    const worldWidth = width * 3;
+    const worldWidth = width * 3; // 3x viewport width for scrolling
     const tilesNeeded = Math.ceil(worldWidth / tileWidth) + 2;
 
     for (let i = 0; i < tilesNeeded; i++) {
@@ -128,13 +128,16 @@ export class Level1Scene extends Phaser.Scene {
   }
 
   private createPlayer() {
-    const { height } = this.scale;
+    const { width, height } = this.scale;
 
     // Get ground height for safe spawning
     const groundHeight = this.textures
       .get('Stone_Walkway_Slice')
       .getSourceImage().height;
-    const spawnX = 100;
+
+    // Safe spawn position - 1.5 tiles from left edge
+    const tileWidth = 256;
+    const spawnX = tileWidth * 1.5;
     const spawnY = height - groundHeight - 20; // 20px cushion above ground
 
     this.player = new Player(this, spawnX, spawnY);
@@ -357,10 +360,14 @@ export class Level1Scene extends Phaser.Scene {
   private setupCamera() {
     const { width, height } = this.scale;
 
-    // Camera follow with improved parameters and deadzone
+    // Camera follow with improved parameters and better deadzone
     this.cameras.main.startFollow(this.player, true, 0.12, 0.12);
     this.cameras.main.setBounds(0, 0, width * 3, height);
-    this.cameras.main.setDeadzone(width * 0.35, height);
+
+    // Improved deadzone - wider horizontal, taller vertical
+    const deadzoneWidth = width * 0.5;
+    const deadzoneHeight = height * 0.6;
+    this.cameras.main.setDeadzone(deadzoneWidth, deadzoneHeight);
   }
 
   private setupDepthOrdering() {

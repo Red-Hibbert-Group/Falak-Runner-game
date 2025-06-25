@@ -5,6 +5,7 @@ import { getGameState } from '../store/GameStore';
 
 export class LevelCompleteScene extends Phaser.Scene {
   private spaceKey!: any;
+  private birthdayText!: any;
 
   constructor() {
     super({ key: 'LevelCompleteScene' });
@@ -17,15 +18,15 @@ export class LevelCompleteScene extends Phaser.Scene {
     // Fail-safe camera clear
     this.cameras.main.fadeIn(300, 0, 0, 0);
 
-    // Background
+    // Background with celebration gradient
     const bg = this.add.graphics();
-    bg.fillGradientStyle(0x4a90e2, 0x4a90e2, 0x87ceeb, 0x87ceeb);
+    bg.fillGradientStyle(0x1a1a2e, 0x16213e, 0x0f3460, 0x533483);
     bg.fillRect(0, 0, width, height);
 
     // Level Complete text
     this.add
-      .text(width / 2, height / 2 - 150, 'LEVEL COMPLETE!', {
-        fontSize: '48px',
+      .text(width / 2, height * 0.2, 'LEVEL COMPLETE!', {
+        fontSize: Math.min(width * 0.1, 64) + 'px',
         color: '#FFD700',
         fontStyle: 'bold',
         stroke: '#8B4513',
@@ -33,35 +34,37 @@ export class LevelCompleteScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
-    // Congratulations text
-    this.add
+    // Birthday message - start invisible
+    this.birthdayText = this.add
       .text(
         width / 2,
-        height / 2 - 80,
-        'Congratulations! You found the treasure!',
+        height * 0.45,
+        'Happy Birthday\nNidhi Sree & Tirumala Agam!',
         {
-          fontSize: '24px',
+          fontSize: Math.min(width * 0.08, 48) + 'px',
           color: '#FFFFFF',
-          fontStyle: 'italic',
+          fontStyle: 'bold',
+          align: 'center',
+          stroke: '#FF69B4',
+          strokeThickness: 2,
         }
       )
-      .setOrigin(0.5);
+      .setOrigin(0.5)
+      .setAlpha(0);
 
     // Final score
     this.add
-      .text(width / 2, height / 2 - 20, `Final Score: ${gameState.score}`, {
-        fontSize: '32px',
+      .text(width / 2, height * 0.65, `Final Score: ${gameState.score}`, {
+        fontSize: Math.min(width * 0.06, 36) + 'px',
         color: '#FFD700',
         fontStyle: 'bold',
       })
       .setOrigin(0.5);
 
-    // TODO(cursor): Add level statistics (time, collectibles found, etc.)
-
     // Instructions
     const instructionText = this.add
-      .text(width / 2, height / 2 + 80, '', {
-        fontSize: '20px',
+      .text(width / 2, height * 0.85, '', {
+        fontSize: Math.min(width * 0.04, 24) + 'px',
         color: '#FFFFFF',
         align: 'center',
       })
@@ -78,7 +81,7 @@ export class LevelCompleteScene extends Phaser.Scene {
       this.spaceKey.once('down', this.restartGame, this);
     }
 
-    // Add blinking effect
+    // Add blinking effect to instructions
     this.tweens.add({
       targets: instructionText,
       alpha: 0.3,
@@ -87,31 +90,109 @@ export class LevelCompleteScene extends Phaser.Scene {
       repeat: -1,
     });
 
-    // Create celebration particles
-    this.createCelebrationParticles();
+    // Start the birthday animation sequence
+    this.startBirthdayAnimation();
+
+    // Auto-restart after 8 seconds
+    this.time.delayedCall(8000, this.restartGame, [], this);
   }
 
-  private createCelebrationParticles() {
+  private startBirthdayAnimation() {
     const { width, height } = this.scale;
 
-    // Create multiple firework particles
-    for (let i = 0; i < 5; i++) {
-      const x = Phaser.Math.Between(width * 0.2, width * 0.8);
-      const y = Phaser.Math.Between(height * 0.2, height * 0.6);
+    // Create fireworks first
+    this.createBirthdayFireworks();
 
-      // Create particle emitter
-      const particles = this.add.particles(x, y, 'firework', {
-        speed: { min: 50, max: 150 },
-        scale: { start: 0.3, end: 0 },
-        blendMode: 'ADD',
-        lifespan: 1000,
-      });
+    // Animate birthday text in with timeline
+    this.tweens.timeline({
+      targets: this.birthdayText,
+      tweens: [
+        {
+          // Fade in
+          alpha: 1,
+          duration: 1200,
+          ease: 'Sine.easeIn',
+        },
+        {
+          // Subtle bounce scale
+          scale: 1.1,
+          duration: 400,
+          ease: 'Back.easeOut',
+          yoyo: true,
+          repeat: 1,
+        },
+        {
+          // Gentle glow pulse
+          alpha: 0.8,
+          duration: 800,
+          ease: 'Sine.easeInOut',
+          yoyo: true,
+          repeat: -1,
+        },
+      ],
+    });
 
-      // Stop after 3 seconds
-      this.time.delayedCall(3000, () => {
-        particles.destroy();
+    // Add sparkle effects around the birthday text
+    this.createSparkleEffects();
+  }
+
+  private createBirthdayFireworks() {
+    const { width, height } = this.scale;
+
+    // Create multiple colorful firework bursts
+    const colors = [0xff69b4, 0x00ff00, 0xffd700, 0xff4500, 0x9370db];
+
+    for (let i = 0; i < 8; i++) {
+      const x = Phaser.Math.Between(width * 0.1, width * 0.9);
+      const y = Phaser.Math.Between(height * 0.1, height * 0.7);
+      const color = colors[i % colors.length];
+
+      this.time.delayedCall(i * 300, () => {
+        // Create burst effect
+        const particles = this.add.particles(x, y, 'firework', {
+          speed: { min: 100, max: 200 },
+          scale: { start: 0.4, end: 0 },
+          tint: color,
+          blendMode: 'ADD',
+          lifespan: 1500,
+          quantity: 15,
+        });
+
+        // Stop after burst
+        this.time.delayedCall(1500, () => {
+          particles.destroy();
+        });
       });
     }
+  }
+
+  private createSparkleEffects() {
+    const { width, height } = this.scale;
+
+    // Create continuous sparkles around the birthday text
+    const sparkleEmitter = this.add.particles(
+      width / 2,
+      height * 0.45,
+      'firework',
+      {
+        speed: { min: 20, max: 80 },
+        scale: { start: 0.1, end: 0 },
+        tint: [0xffd700, 0xff69b4, 0x00ff00, 0x9370db],
+        blendMode: 'ADD',
+        lifespan: 2000,
+        frequency: 100,
+        emitZone: {
+          type: 'edge',
+          source: new Phaser.Geom.Rectangle(-200, -50, 400, 100),
+          quantity: 1,
+        },
+      }
+    );
+
+    // Stop sparkles after 6 seconds
+    this.time.delayedCall(6000, () => {
+      sparkleEmitter.destroy();
+    });
   }
 
   private restartGame() {

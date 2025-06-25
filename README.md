@@ -1,6 +1,8 @@
 # 🧞‍♂️ Falak Runner 🌊
 
-A magical 2D side-scrolling adventure game featuring baby Aladdin and Moana, built with Next.js 15, TypeScript, Tailwind CSS, and Phaser 3.
+A magical 2D side-scrolling adventure game featuring AGAM and NIDHI, built with Next.js 15, TypeScript, Tailwind CSS, and Phaser 3.
+
+**📱 Note: This game is optimized for landscape mode. On mobile devices, please rotate your phone for the best experience.**
 
 ## 🚀 Quick Start
 
@@ -34,22 +36,24 @@ falak-runner/
 
 ### ✅ Implemented
 
+- **Responsive Design**: Full-screen scaling on all devices and aspect ratios
+- **Landscape-Only Mode**: Orientation guard with rotate device overlay
+- **Character Selection**: Choose between AGAM and NIDHI with smooth animations
 - **Monorepo Structure**: pnpm workspace with game package and web app
 - **Asset Loading**: Automatic loading from `/public/assets` with progress bar
-- **Scene Management**: Title → Level1 → Level Complete flow
-- **Player Character**: Baby Aladdin with run, idle, jump animations
-- **Physics**: Arcade physics with gravity and collisions
+- **Scene Management**: Title → Character Select → Level1 → Level Complete flow
+- **Dynamic Ground**: Responsive ground tiling based on viewport width
+- **Physics**: Arcade physics with gravity and proper collision detection
 - **Parallax Background**: 3-layer scrolling backgrounds
 - **Collectibles**: Gift pickups worth 10 points each
-- **Level Completion**: Treasure chest triggers fireworks and completion
+- **Birthday Celebration**: Special animated birthday message for Nidhi Sree & Tirumala Agam
 - **Controls**:
   - Desktop: Arrow keys + spacebar
-  - Mobile: On-screen touch controls
-- **State Management**: Zustand store for score, lives, level tracking
+  - Mobile: On-screen touch controls (landscape mode)
+- **State Management**: Game store for score, lives, character selection
 
 ### 🚧 TODO (Stretch Goals)
 
-- **Character Selection**: Moana with water dash ability
 - **Sound Effects**: Coin pickup, jump, background music
 - **Leaderboard**: Supabase integration for high scores
 - **Multiple Levels**: Additional challenging levels

@@ -9,8 +9,8 @@ export interface GameState {
 }
 
 // Character selection types and state
-export type CharacterKey = 'aladdin' | 'moana';
-let chosenChar: CharacterKey = 'aladdin';
+export type CharacterKey = 'agam' | 'nidhi';
+let chosenChar: CharacterKey = 'agam';
 
 export const setChosenChar = (c: CharacterKey) => {
   chosenChar = c;

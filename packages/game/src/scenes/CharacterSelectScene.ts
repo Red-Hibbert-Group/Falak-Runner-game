@@ -11,109 +11,120 @@ export class CharacterSelectScene extends Phaser.Scene {
   create() {
     console.log('[CharacterSelectScene] create');
 
-    // Add solid background so never pure black
+    // Add solid background
     this.cameras.main.setBackgroundColor('#0e397e'); // deep palace-blue
-
-    // Fail-safe camera clear
     this.cameras.main.fadeIn(300, 0, 0, 0);
 
-    const centerX = this.scale.width * 0.5;
-    const centerY = this.scale.height * 0.55;
+    const { width, height } = this.scale;
+    const centerX = width * 0.5;
+    const centerY = height * 0.5;
 
-    // Responsive layout logic
-    const horizontal = this.scale.width > 500; // wider than mobile portrait?
-    const spacing = Math.min(this.scale.width * 0.25, 180);
+    // Responsive scaling - max 40% viewport height for hero cards
+    const maxCardHeight = height * 0.4;
+    const cardScale = Math.min(maxCardHeight / 200, 1.5); // Limit max scale
 
-    const alPos = horizontal
-      ? { x: centerX - spacing, y: centerY }
-      : { x: centerX, y: centerY - 120 };
+    // Horizontal layout with proper spacing
+    const spacing = Math.min(width * 0.3, 200);
+    const agamPos = { x: centerX - spacing * 0.7, y: centerY };
+    const nidhiPos = { x: centerX + spacing * 0.7, y: centerY };
 
-    const moPos = horizontal
-      ? { x: centerX + spacing, y: centerY }
-      : { x: centerX, y: centerY + 120 };
-
-    // Title
+    // Title at top
     this.add
-      .text(centerX, centerY - (horizontal ? 180 : 220), 'Choose Your Hero', {
-        fontSize: '32px',
+      .text(centerX, height * 0.15, 'Choose Your Hero', {
+        fontSize: Math.min(width * 0.08, 48) + 'px',
         color: '#ffffff',
         fontStyle: 'bold',
       })
       .setOrigin(0.5);
 
-    // Aladdin button
-    const aladdinButton = this.add
-      .image(alPos.x, alPos.y, 'aladdin', 'aladdin_run_0')
+    // AGAM (Aladdin) button
+    const agamButton = this.add
+      .image(agamPos.x, agamPos.y, 'aladdin', 'aladdin_run_0')
       .setInteractive({ cursor: 'pointer' })
-      .setScale(1.3);
+      .setScale(cardScale);
 
-    // Aladdin label
+    // AGAM label
     this.add
-      .text(alPos.x, alPos.y + 80, 'ALADDIN', {
-        fontSize: '18px',
+      .text(agamPos.x, agamPos.y + cardScale * 100, 'AGAM', {
+        fontSize: Math.min(width * 0.06, 32) + 'px',
         color: '#ffffff',
         fontStyle: 'bold',
       })
       .setOrigin(0.5);
 
-    // Moana button
-    const moanaButton = this.add
-      .image(moPos.x, moPos.y, 'moana', 'moana_run_0')
+    // NIDHI (Moana) button
+    const nidhiButton = this.add
+      .image(nidhiPos.x, nidhiPos.y, 'moana', 'moana_run_0')
       .setInteractive({ cursor: 'pointer' })
-      .setScale(1.3);
+      .setScale(cardScale);
 
-    // Moana label
+    // NIDHI label
     this.add
-      .text(moPos.x, moPos.y + 80, 'MOANA', {
-        fontSize: '18px',
+      .text(nidhiPos.x, nidhiPos.y + cardScale * 100, 'NIDHI', {
+        fontSize: Math.min(width * 0.06, 32) + 'px',
         color: '#ffffff',
         fontStyle: 'bold',
       })
       .setOrigin(0.5);
 
-    // "Tap to start" helper
+    // Instructions at bottom
     this.add
-      .text(
-        centerX,
-        centerY + (horizontal ? 150 : 210),
-        'Tap a hero to start!',
-        {
-          fontSize: '24px',
-          color: '#fff',
-        }
-      )
+      .text(centerX, height * 0.85, 'Tap a hero to start!', {
+        fontSize: Math.min(width * 0.05, 28) + 'px',
+        color: '#fff',
+      })
       .setOrigin(0.5);
 
-    // Button hover effects
-    aladdinButton.on('pointerover', () => {
-      aladdinButton.setScale(1.4);
-      aladdinButton.setTint(0xffff99);
+    // Button hover effects with scale tweens
+    agamButton.on('pointerover', () => {
+      this.tweens.add({
+        targets: agamButton,
+        scale: cardScale * 1.1,
+        duration: 200,
+        ease: 'Power2',
+      });
+      agamButton.setTint(0xffff99);
     });
 
-    aladdinButton.on('pointerout', () => {
-      aladdinButton.setScale(1.3);
-      aladdinButton.clearTint();
+    agamButton.on('pointerout', () => {
+      this.tweens.add({
+        targets: agamButton,
+        scale: cardScale,
+        duration: 200,
+        ease: 'Power2',
+      });
+      agamButton.clearTint();
     });
 
-    moanaButton.on('pointerover', () => {
-      moanaButton.setScale(1.4);
-      moanaButton.setTint(0x99ffff);
+    nidhiButton.on('pointerover', () => {
+      this.tweens.add({
+        targets: nidhiButton,
+        scale: cardScale * 1.1,
+        duration: 200,
+        ease: 'Power2',
+      });
+      nidhiButton.setTint(0x99ffff);
     });
 
-    moanaButton.on('pointerout', () => {
-      moanaButton.setScale(1.3);
-      moanaButton.clearTint();
+    nidhiButton.on('pointerout', () => {
+      this.tweens.add({
+        targets: nidhiButton,
+        scale: cardScale,
+        duration: 200,
+        ease: 'Power2',
+      });
+      nidhiButton.clearTint();
     });
 
     // Button click handlers
-    aladdinButton.on('pointerdown', () => {
-      console.log('[CharacterSelectScene] Aladdin selected');
-      this.selectCharacter('aladdin');
+    agamButton.on('pointerdown', () => {
+      console.log('[CharacterSelectScene] AGAM selected');
+      this.selectCharacter('agam');
     });
 
-    moanaButton.on('pointerdown', () => {
-      console.log('[CharacterSelectScene] Moana selected');
-      this.selectCharacter('moana');
+    nidhiButton.on('pointerdown', () => {
+      console.log('[CharacterSelectScene] NIDHI selected');
+      this.selectCharacter('nidhi');
     });
 
     // Keyboard controls
@@ -125,18 +136,28 @@ export class CharacterSelectScene extends Phaser.Scene {
       Phaser.Input.Keyboard.KeyCodes.ENTER
     );
 
-    let selectedIndex = 0; // 0 = Aladdin, 1 = Moana
-    const characters = ['aladdin', 'moana'];
-    const buttons = [aladdinButton, moanaButton];
+    let selectedIndex = 0; // 0 = AGAM, 1 = NIDHI
+    const characters = ['agam', 'nidhi'] as const;
+    const buttons = [agamButton, nidhiButton];
 
     // Update selection highlight
     const updateSelection = () => {
       buttons.forEach((btn, i) => {
         if (i === selectedIndex) {
-          btn.setScale(1.4);
+          this.tweens.add({
+            targets: btn,
+            scale: cardScale * 1.1,
+            duration: 200,
+            ease: 'Power2',
+          });
           btn.setTint(i === 0 ? 0xffff99 : 0x99ffff);
         } else {
-          btn.setScale(1.3);
+          this.tweens.add({
+            targets: btn,
+            scale: cardScale,
+            duration: 200,
+            ease: 'Power2',
+          });
           btn.clearTint();
         }
       });
@@ -158,18 +179,18 @@ export class CharacterSelectScene extends Phaser.Scene {
       console.log(
         `[CharacterSelectScene] ${characters[selectedIndex]} selected via keyboard`
       );
-      this.selectCharacter(characters[selectedIndex] as 'aladdin' | 'moana');
+      this.selectCharacter(characters[selectedIndex]);
     });
 
     enterKey?.on('down', () => {
       console.log(
         `[CharacterSelectScene] ${characters[selectedIndex]} selected via keyboard`
       );
-      this.selectCharacter(characters[selectedIndex] as 'aladdin' | 'moana');
+      this.selectCharacter(characters[selectedIndex]);
     });
   }
 
-  private selectCharacter(character: 'aladdin' | 'moana') {
+  private selectCharacter(character: 'agam' | 'nidhi') {
     // Import GameStore at runtime to avoid circular dependencies
     import('../store/GameStore').then(({ setChosenChar, getChosenChar }) => {
       setChosenChar(character);

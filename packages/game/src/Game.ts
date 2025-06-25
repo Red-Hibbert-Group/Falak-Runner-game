@@ -20,11 +20,9 @@ export function startGame(container: HTMLElement): any {
     rect: containerRect,
   });
 
-  // Use window dimensions if container dimensions are 0
-  const gameWidth =
-    container.offsetWidth > 0 ? container.offsetWidth : window.innerWidth;
-  const gameHeight =
-    container.offsetHeight > 0 ? container.offsetHeight : window.innerHeight;
+  // Use container dimensions, fallback to window if needed
+  const gameWidth = container.clientWidth || window.innerWidth;
+  const gameHeight = container.clientHeight || window.innerHeight;
 
   console.log('[Game] Using game dimensions:', { gameWidth, gameHeight });
 
@@ -38,15 +36,13 @@ export function startGame(container: HTMLElement): any {
       mode: Phaser.Scale.RESIZE,
       autoCenter: Phaser.Scale.CENTER_BOTH,
       parent: 'falak-game',
-      width: gameWidth,
-      height: gameHeight,
     },
     pixelArt: false,
     physics: {
       default: 'arcade',
       arcade: {
         gravity: { x: 0, y: 800 },
-        debug: false,
+        debug: false, // Disable physics debug for production
       },
     },
     scene: [

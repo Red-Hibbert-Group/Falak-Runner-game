@@ -17,14 +17,22 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const chosenChar = getChosenChar();
     console.log('[Player] Creating player with character:', chosenChar);
 
-    // Call parent constructor with chosen character atlas
-    super(scene, x, y, chosenChar, `${chosenChar}_run_0`);
+    // Map display names to asset names
+    const assetMap: Record<string, string> = {
+      agam: 'aladdin',
+      nidhi: 'moana',
+    };
 
-    this.chosenChar = chosenChar;
+    const assetKey = assetMap[chosenChar] || 'aladdin';
+
+    // Call parent constructor with asset atlas
+    super(scene, x, y, assetKey, `${assetKey}_run_0`);
+
+    this.chosenChar = assetKey; // Use asset key for animations
 
     // Set special ability animation based on character
     this.specialKey =
-      chosenChar === 'aladdin' ? 'aladdin_carpet' : 'moana_water_dash';
+      assetKey === 'aladdin' ? 'aladdin_carpet' : 'moana_water_dash';
 
     // Add to scene and enable physics
     this.scene.add.existing(this);
