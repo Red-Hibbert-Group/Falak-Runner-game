@@ -1,6 +1,6 @@
 {
-  "buildCommand": "cd apps/web && pnpm run build",
+  "framework": "nextjs",
+  "buildCommand": "pnpm --filter=@falak-runner/game run build && pnpm --filter=@falak-runner/web run build:next",
   "outputDirectory": "apps/web/.next",
-  "installCommand": "pnpm install",
-  "framework": "nextjs"
+  "installCommand": "pnpm install"
 }

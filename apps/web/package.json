@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "cd ../../packages/game && npm run build && cd ../../apps/web && next build",
+    "build:next": "next build",
     "start": "next start",
     "lint": "next lint"
   },
