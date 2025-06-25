@@ -23,7 +23,7 @@ export class PreloadScene extends Phaser.Scene {
       'firework.png',
     ];
 
-    // Sprite atlases
+    // Sprite atlases - all converted to proper TexturePacker format
     const atlases = [
       { png: 'aladdin.png', json: 'aladdin.json' },
       { png: 'aladdin_idle.png', json: 'aladdin_idle.json' },
@@ -40,9 +40,10 @@ export class PreloadScene extends Phaser.Scene {
       this.load.image(file.replace(/\.png$/, ''), `/assets/${file}`);
     });
 
-    // Load sprite atlases
+    // Load sprite atlases using standard Phaser method
     atlases.forEach(({ png, json }) => {
-      const key = png.replace(/\.png$/, '');
+      const key = json.replace(/\.json$/, '');
+      console.log(`[Preload] Loading atlas: ${key} (${png}, ${json})`);
       this.load.atlas(key, `/assets/${png}`, `/assets/${json}`);
     });
 
@@ -54,11 +55,17 @@ export class PreloadScene extends Phaser.Scene {
 
     this.load.on('complete', () => {
       console.log('[Preload] complete – starting TitleScene');
+      console.log(
+        '[Preload] Loaded textures:',
+        Object.keys(this.textures.list)
+      );
       this.scene.start('TitleScene');
     });
 
     this.load.on('loaderror', (file: any) => {
       console.error('[Preload] Failed to load asset:', file.key, file.url);
+      console.error('[Preload] File type:', file.type);
+      console.error('[Preload] File data:', file);
     });
   }
 

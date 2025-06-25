@@ -1,56 +1,68 @@
 {
   "frames": {
     "aladdin_run_0": {
-      "x": 0,
-      "y": 0,
-      "w": 384,
-      "h": 512
+      "frame": { "x": 0, "y": 0, "w": 384, "h": 512 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 384, "h": 512 },
+      "sourceSize": { "w": 384, "h": 512 }
     },
     "aladdin_run_1": {
-      "x": 384,
-      "y": 0,
-      "w": 384,
-      "h": 512
+      "frame": { "x": 384, "y": 0, "w": 384, "h": 512 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 384, "h": 512 },
+      "sourceSize": { "w": 384, "h": 512 }
     },
     "aladdin_run_2": {
-      "x": 768,
-      "y": 0,
-      "w": 384,
-      "h": 512
+      "frame": { "x": 768, "y": 0, "w": 384, "h": 512 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 384, "h": 512 },
+      "sourceSize": { "w": 384, "h": 512 }
     },
     "aladdin_run_3": {
-      "x": 1152,
-      "y": 0,
-      "w": 384,
-      "h": 512
+      "frame": { "x": 1152, "y": 0, "w": 384, "h": 512 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 384, "h": 512 },
+      "sourceSize": { "w": 384, "h": 512 }
     },
     "aladdin_run_4": {
-      "x": 0,
-      "y": 512,
-      "w": 384,
-      "h": 512
+      "frame": { "x": 0, "y": 512, "w": 384, "h": 512 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 384, "h": 512 },
+      "sourceSize": { "w": 384, "h": 512 }
     },
     "aladdin_run_5": {
-      "x": 384,
-      "y": 512,
-      "w": 384,
-      "h": 512
+      "frame": { "x": 384, "y": 512, "w": 384, "h": 512 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 384, "h": 512 },
+      "sourceSize": { "w": 384, "h": 512 }
     },
     "aladdin_run_6": {
-      "x": 768,
-      "y": 512,
-      "w": 384,
-      "h": 512
+      "frame": { "x": 768, "y": 512, "w": 384, "h": 512 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 384, "h": 512 },
+      "sourceSize": { "w": 384, "h": 512 }
     },
     "aladdin_run_7": {
-      "x": 1152,
-      "y": 512,
-      "w": 384,
-      "h": 512
+      "frame": { "x": 1152, "y": 512, "w": 384, "h": 512 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 384, "h": 512 },
+      "sourceSize": { "w": 384, "h": 512 }
     }
   },
   "meta": {
-    "app": "chatgpt",
+    "app": "https://www.codeandweb.com/texturepacker",
+    "version": "1.0",
+    "image": "aladdin.png",
+    "format": "RGBA8888",
+    "size": { "w": 1536, "h": 1024 },
     "scale": "1"
   }
 }

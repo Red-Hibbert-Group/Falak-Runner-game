@@ -40,7 +40,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private createAnimations() {
     const scene = this.scene;
 
-    // Create animations for the selected character based on exact atlas structure
+    // Create animations for the selected character based on proper TexturePacker format
     if (!scene.anims.exists(`${this.character}-idle`)) {
       scene.anims.create({
         key: `${this.character}-idle`,
@@ -114,7 +114,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private setupInput() {
     // Set up keyboard input
     this.cursors = this.scene.input.keyboard!.createCursorKeys();
-    this.spaceKey = this.scene.input.keyboard!.addKey(32); // SPACE key code
+    this.spaceKey = this.scene.input.keyboard!.addKey(
+      Phaser.Input.Keyboard.KeyCodes.SPACE
+    );
   }
 
   public update() {
@@ -132,7 +134,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.stopMoving();
     }
 
-    // Handle jumping
+    // Handle jumping - use isDown for continuous input detection
     if (this.spaceKey.isDown && this.isGrounded) {
       this.jump();
     }

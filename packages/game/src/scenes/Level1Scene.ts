@@ -54,10 +54,8 @@ export class Level1Scene extends Phaser.Scene {
     this.createMobileControls();
     this.createUI();
     this.setupCollisions();
-
-    // Set camera to follow player
-    this.cameras.main.startFollow(this.player);
-    this.cameras.main.setBounds(0, 0, width * 3, height); // 3x wider world
+    this.setupCamera();
+    this.setupDepthOrdering();
   }
 
   private createParallaxBackground() {
@@ -92,7 +90,7 @@ export class Level1Scene extends Phaser.Scene {
   private createGround() {
     const { width, height } = this.scale;
 
-    // Create static group for platforms
+    // Create static group for platforms (fixed physics group)
     this.platforms = this.physics.add.staticGroup();
 
     // Create ground tiles across the level
@@ -126,8 +124,11 @@ export class Level1Scene extends Phaser.Scene {
   private createCollectibles() {
     const { width, height } = this.scale;
 
-    // Create collectible group
-    this.collectibles = this.physics.add.group();
+    // Create collectible group - NO gravity, immovable to prevent jitter
+    this.collectibles = this.physics.add.group({
+      allowGravity: false,
+      immovable: true,
+    });
 
     // Add gifts scattered throughout the level
     const giftPositions = [
@@ -143,7 +144,11 @@ export class Level1Scene extends Phaser.Scene {
     giftPositions.forEach((pos) => {
       const gift = this.collectibles.create(pos.x, pos.y, 'gift');
       gift.setScale(0.1);
-      gift.setBounce(0.3);
+      // Remove bouncing since gifts are now immovable
+      // gift.setBounce(0.3);
+
+      // Stop gift flicker - disable collision detection to prevent separateOverlaps jitter
+      gift.body.checkCollision.none = true;
 
       // Add floating animation
       this.tweens.add({
@@ -171,44 +176,78 @@ export class Level1Scene extends Phaser.Scene {
 
     // Only show mobile controls on touch devices
     if (this.sys.game.device.input.touch) {
+      const buttonSize = Math.min(width, height) * 0.08;
+      const buttonMargin = Math.min(width, height) * 0.05;
+
       // Left arrow button
-      this.leftBtn = this.add.rectangle(80, height - 80, 60, 60, 0x4a90e2, 0.7);
+      this.leftBtn = this.add.rectangle(
+        buttonMargin + buttonSize / 2,
+        height - buttonMargin - buttonSize / 2,
+        buttonSize,
+        buttonSize,
+        0x4a90e2,
+        0.7
+      );
       this.leftBtn.setScrollFactor(0);
       this.leftBtn.setInteractive();
       this.add
-        .text(80, height - 80, '←', { fontSize: '32px', color: '#fff' })
+        .text(
+          buttonMargin + buttonSize / 2,
+          height - buttonMargin - buttonSize / 2,
+          '←',
+          {
+            fontSize: `${buttonSize * 0.5}px`,
+            color: '#fff',
+          }
+        )
         .setOrigin(0.5)
         .setScrollFactor(0);
 
       // Right arrow button
       this.rightBtn = this.add.rectangle(
-        160,
-        height - 80,
-        60,
-        60,
+        buttonMargin + buttonSize * 1.8,
+        height - buttonMargin - buttonSize / 2,
+        buttonSize,
+        buttonSize,
         0x4a90e2,
         0.7
       );
       this.rightBtn.setScrollFactor(0);
       this.rightBtn.setInteractive();
       this.add
-        .text(160, height - 80, '→', { fontSize: '32px', color: '#fff' })
+        .text(
+          buttonMargin + buttonSize * 1.8,
+          height - buttonMargin - buttonSize / 2,
+          '→',
+          {
+            fontSize: `${buttonSize * 0.5}px`,
+            color: '#fff',
+          }
+        )
         .setOrigin(0.5)
         .setScrollFactor(0);
 
       // Jump button
       this.jumpBtn = this.add.rectangle(
-        width - 80,
-        height - 80,
-        60,
-        60,
+        width - buttonMargin - buttonSize / 2,
+        height - buttonMargin - buttonSize / 2,
+        buttonSize,
+        buttonSize,
         0xff6b6b,
         0.7
       );
       this.jumpBtn.setScrollFactor(0);
       this.jumpBtn.setInteractive();
       this.add
-        .text(width - 80, height - 80, '↑', { fontSize: '32px', color: '#fff' })
+        .text(
+          width - buttonMargin - buttonSize / 2,
+          height - buttonMargin - buttonSize / 2,
+          '↑',
+          {
+            fontSize: `${buttonSize * 0.5}px`,
+            color: '#fff',
+          }
+        )
         .setOrigin(0.5)
         .setScrollFactor(0);
 
@@ -273,10 +312,10 @@ export class Level1Scene extends Phaser.Scene {
     // Player with ground
     this.physics.add.collider(this.player, this.platforms);
 
-    // Collectibles with ground
-    this.physics.add.collider(this.collectibles, this.platforms);
+    // Remove collectibles collision with ground to prevent jitter
+    // this.physics.add.collider(this.collectibles, this.platforms);
 
-    // Player collecting gifts
+    // Player collecting gifts - use overlap instead of collider
     this.physics.add.overlap(
       this.player,
       this.collectibles,
@@ -293,6 +332,22 @@ export class Level1Scene extends Phaser.Scene {
       undefined,
       this
     );
+  }
+
+  private setupCamera() {
+    const { width, height } = this.scale;
+
+    // Camera follow with smooth lerp
+    this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
+    this.cameras.main.setBounds(0, 0, width * 3, height);
+  }
+
+  private setupDepthOrdering() {
+    // Set depth ordering to prevent flickering
+    this.platforms.setDepth(1);
+    this.collectibles.setDepth(5);
+    this.player.setDepth(10);
+    this.treasureChest.setDepth(8);
   }
 
   private collectGift(player: any, gift: any) {

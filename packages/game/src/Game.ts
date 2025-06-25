@@ -7,16 +7,17 @@ import { Level1Scene } from './scenes/Level1Scene';
 import { LevelCompleteScene } from './scenes/LevelCompleteScene';
 
 export function startGame(container: HTMLElement): any {
-  const config = {
+  const gameConfig: any = {
     type: Phaser.AUTO,
-    width: 1200,
-    height: 600,
-    parent: container,
+    parent: 'falak-game',
+    width: window.innerWidth,
+    height: window.innerHeight,
     backgroundColor: '#87CEEB', // Sky blue
     scale: {
-      mode: Phaser.Scale.FIT,
+      mode: Phaser.Scale.RESIZE,
       autoCenter: Phaser.Scale.CENTER_BOTH,
     },
+    pixelArt: false,
     physics: {
       default: 'arcade',
       arcade: {
@@ -27,5 +28,13 @@ export function startGame(container: HTMLElement): any {
     scene: [PreloadScene, TitleScene, Level1Scene, LevelCompleteScene],
   };
 
-  return new Phaser.Game(config);
+  const phaserGame = new Phaser.Game(gameConfig);
+
+  // Add resize listener for responsive canvas
+  window.addEventListener('resize', () => {
+    const { innerWidth, innerHeight } = window;
+    phaserGame.scale.resize(innerWidth, innerHeight);
+  });
+
+  return phaserGame;
 }

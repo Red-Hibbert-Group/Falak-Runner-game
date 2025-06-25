@@ -25,10 +25,10 @@ export class TitleScene extends Phaser.Scene {
     bg.fillGradientStyle(0x87ceeb, 0x87ceeb, 0xffd700, 0xffd700);
     bg.fillRect(0, 0, width, height);
 
-    // Game title
+    // Game title - using percentage positioning for responsive design
     this.titleText = this.add
-      .text(width / 2, height / 2 - 100, 'FALAK RUNNER', {
-        fontSize: '64px',
+      .text(width * 0.5, height * 0.35, 'FALAK RUNNER', {
+        fontSize: `${Math.min(width, height) * 0.08}px`,
         color: '#8B4513',
         fontStyle: 'bold',
         stroke: '#FFFFFF',
@@ -38,8 +38,8 @@ export class TitleScene extends Phaser.Scene {
 
     // Subtitle
     this.add
-      .text(width / 2, height / 2 - 40, 'Adventures of Baby Aladdin & Moana', {
-        fontSize: '24px',
+      .text(width * 0.5, height * 0.45, 'Adventures of Baby Aladdin & Moana', {
+        fontSize: `${Math.min(width, height) * 0.03}px`,
         color: '#4A4A4A',
         fontStyle: 'italic',
       })
@@ -47,8 +47,8 @@ export class TitleScene extends Phaser.Scene {
 
     // Instructions
     this.instructionText = this.add
-      .text(width / 2, height / 2 + 60, '', {
-        fontSize: '20px',
+      .text(width * 0.5, height * 0.65, '', {
+        fontSize: `${Math.min(width, height) * 0.025}px`,
         color: '#333333',
         align: 'center',
       })
