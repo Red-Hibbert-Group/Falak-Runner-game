@@ -1,9 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   transpilePackages: ['@falak-runner/game'],
-  experimental: {
-    esmExternals: 'loose',
-  },
   webpack: (config, { isServer }) => {
     // Don't bundle Phaser on the server
     if (isServer) {
@@ -12,9 +9,9 @@ const nextConfig = {
       // For client-side, handle Phaser specially
       config.externals = {
         ...config.externals,
-        phaser: 'Phaser'
+        phaser: 'Phaser',
       };
-      
+
       // Add fallbacks for Node.js modules
       config.resolve.fallback = {
         ...config.resolve.fallback,
@@ -23,9 +20,9 @@ const nextConfig = {
         crypto: false,
       };
     }
-    
+
     return config;
   },
 };
 
-module.exports = nextConfig; 
+module.exports = nextConfig;
