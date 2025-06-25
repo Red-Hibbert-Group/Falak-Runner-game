@@ -1,24 +1,24 @@
 {
   "frames": {
-    "aladdin_idle_3_0": {
+    "aladdin_idle_0": {
       "x": 0,
       "y": 0,
       "w": 384,
       "h": 1024
     },
-    "aladdin_idle_3_1": {
+    "aladdin_idle_1": {
       "x": 384,
       "y": 0,
       "w": 384,
       "h": 1024
     },
-    "aladdin_idle_3_2": {
+    "aladdin_idle_2": {
       "x": 768,
       "y": 0,
       "w": 384,
       "h": 1024
     },
-    "aladdin_idle_3_3": {
+    "aladdin_idle_3": {
       "x": 1152,
       "y": 0,
       "w": 384,
