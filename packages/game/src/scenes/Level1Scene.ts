@@ -36,7 +36,16 @@ export class Level1Scene extends Phaser.Scene {
   }
 
   create() {
+    console.log('[Level1Scene] create');
     const { width, height } = this.scale;
+
+    // Debug text to verify scene loaded
+    this.add
+      .text(10, 50, 'Level1Scene loaded', {
+        fontSize: '16px',
+        color: '#000000',
+      })
+      .setScrollFactor(0);
 
     this.createParallaxBackground();
     this.createGround();

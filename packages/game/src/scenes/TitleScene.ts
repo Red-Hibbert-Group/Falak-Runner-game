@@ -11,7 +11,14 @@ export class TitleScene extends Phaser.Scene {
   }
 
   create() {
+    console.log('[TitleScene] create');
     const { width, height } = this.scale;
+
+    // Debug text to verify scene loaded
+    this.add.text(10, 10, 'TitleScene loaded', {
+      fontSize: '16px',
+      color: '#000000',
+    });
 
     // Background gradient
     const bg = this.add.graphics();
@@ -55,10 +62,14 @@ export class TitleScene extends Phaser.Scene {
     }
 
     // Handle input
-    this.input.once('pointerdown', () => this.scene.start('Level1Scene'));
-    this.input.keyboard.once('keydown-SPACE', () =>
-      this.scene.start('Level1Scene')
-    );
+    this.input.once('pointerdown', () => {
+      console.log('[TitleScene] pointerdown – start Level1Scene');
+      this.scene.start('Level1Scene');
+    });
+    this.input.keyboard.once('keydown-SPACE', () => {
+      console.log('[TitleScene] SPACE – start Level1Scene');
+      this.scene.start('Level1Scene');
+    });
 
     // Add blinking effect to instruction text
     this.tweens.add({

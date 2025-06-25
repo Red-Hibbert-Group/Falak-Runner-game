@@ -48,16 +48,17 @@ export class PreloadScene extends Phaser.Scene {
 
     // Update loading bar
     this.load.on('progress', (value: number) => {
+      console.log(`[Preload] Loading progress: ${Math.round(value * 100)}%`);
       this.updateLoadingBar(value);
     });
 
     this.load.on('complete', () => {
-      console.log('All assets loaded successfully!');
+      console.log('[Preload] complete – starting TitleScene');
       this.scene.start('TitleScene');
     });
 
     this.load.on('loaderror', (file: any) => {
-      console.error('Failed to load asset:', file.key, file.url);
+      console.error('[Preload] Failed to load asset:', file.key, file.url);
     });
   }
 
