@@ -10,21 +10,36 @@ import { LevelCompleteScene } from './scenes/LevelCompleteScene';
 export function startGame(container: HTMLElement): any {
   console.log('[Game] Starting Falak Runner game...');
   console.log('[Game] Container:', container);
+
+  // Ensure container has proper dimensions
+  const containerRect = container.getBoundingClientRect();
   console.log('[Game] Container dimensions:', {
     width: container.offsetWidth,
     height: container.offsetHeight,
     visible: container.offsetParent !== null,
+    rect: containerRect,
   });
+
+  // Use window dimensions if container dimensions are 0
+  const gameWidth =
+    container.offsetWidth > 0 ? container.offsetWidth : window.innerWidth;
+  const gameHeight =
+    container.offsetHeight > 0 ? container.offsetHeight : window.innerHeight;
+
+  console.log('[Game] Using game dimensions:', { gameWidth, gameHeight });
 
   const gameConfig: any = {
     type: Phaser.AUTO,
     parent: 'falak-game',
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: gameWidth,
+    height: gameHeight,
     backgroundColor: '#87CEEB', // Sky blue
     scale: {
       mode: Phaser.Scale.RESIZE,
       autoCenter: Phaser.Scale.CENTER_BOTH,
+      parent: 'falak-game',
+      width: gameWidth,
+      height: gameHeight,
     },
     pixelArt: false,
     physics: {
@@ -64,6 +79,13 @@ export function startGame(container: HTMLElement): any {
       offsetWidth: canvas?.offsetWidth,
       offsetHeight: canvas?.offsetHeight,
     });
+
+    // Force canvas to fill container
+    if (canvas) {
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      console.log('[Game] Canvas style updated to fill container');
+    }
   });
 
   // Add resize listener for responsive canvas

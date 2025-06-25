@@ -42,8 +42,15 @@ export default function GameCanvas() {
           setError(null);
           addDebugInfo('Game container ready, starting module import');
 
-          // Wait a bit for DOM to be ready
-          await new Promise((resolve) => setTimeout(resolve, 200));
+          // Make container visible immediately so Phaser can measure it
+          if (gameRef.current) {
+            gameRef.current.style.display = 'block';
+            gameRef.current.style.width = '100vw';
+            gameRef.current.style.height = '100vh';
+          }
+
+          // Wait for DOM to be ready and container to be visible
+          await new Promise((resolve) => setTimeout(resolve, 100));
 
           addDebugInfo('Attempting dynamic import of @falak-runner/game');
 
@@ -65,6 +72,17 @@ export default function GameCanvas() {
           addDebugInfo('Calling startGame function');
           phaserGameRef.current = gameModule.startGame(gameRef.current);
           addDebugInfo('startGame function completed successfully');
+
+          // Force canvas resize after game creation
+          if (phaserGameRef.current && phaserGameRef.current.scale) {
+            setTimeout(() => {
+              const { innerWidth, innerHeight } = window;
+              addDebugInfo(
+                `Forcing canvas resize to: ${innerWidth}x${innerHeight}`
+              );
+              phaserGameRef.current.scale.resize(innerWidth, innerHeight);
+            }, 200);
+          }
 
           setGameRunning(true);
           setGameLoaded(true);
@@ -168,10 +186,12 @@ export default function GameCanvas() {
         id="falak-game"
         className="w-full h-full relative z-10"
         style={{
-          display: gameLoaded ? 'block' : 'none',
           backgroundColor: '#87CEEB', // Sky blue background
           minHeight: '100vh',
           minWidth: '100vw',
+          position: 'fixed',
+          top: 0,
+          left: 0,
         }}
       />
     </div>
