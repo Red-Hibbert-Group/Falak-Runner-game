@@ -6,7 +6,7 @@ import { getGameState } from '../store/GameStore';
 
 export class Level1Scene extends Phaser.Scene {
   private player!: Player;
-  private platforms!: any;
+  private groundGroup!: any;
   private collectibles!: any;
   private treasureChest!: any;
 
@@ -59,6 +59,12 @@ export class Level1Scene extends Phaser.Scene {
     this.setupCollisions();
     this.setupCamera();
     this.setupDepthOrdering();
+
+    // Add debug logging for player position
+    this.events.on('postupdate', () => {
+      if (!this.player) return;
+      console.debug('[DBG] player y:', this.player.y.toFixed(0));
+    });
   }
 
   private createParallaxBackground() {
@@ -93,29 +99,46 @@ export class Level1Scene extends Phaser.Scene {
   private createGround() {
     const { width, height } = this.scale;
 
-    // Create static group for platforms (fixed physics group)
-    this.platforms = this.physics.add.staticGroup();
+    // Get the actual ground tile dimensions
+    const groundHeight = this.textures
+      .get('Stone_Walkway_Slice')
+      .getSourceImage().height;
+
+    // Create static group for platforms (proper physics bodies)
+    this.groundGroup = this.physics.add.staticGroup();
 
     // Create ground tiles across the level
-    const groundY = height - 64;
-    const tileWidth = 128;
+    const tileWidth = 256; // Stone_Walkway_Slice is 256px wide
     const worldWidth = width * 3;
+    const tilesNeeded = Math.ceil(worldWidth / tileWidth) + 2;
 
-    for (let x = 0; x < worldWidth; x += tileWidth) {
-      const tile = this.platforms.create(
-        x + tileWidth / 2,
-        groundY,
-        'Stone_Walkway_Slice'
-      );
-      tile.setScale(2, 1);
-      tile.refreshBody();
+    for (let i = 0; i < tilesNeeded; i++) {
+      const x = i * tileWidth;
+      const y = height - groundHeight / 2; // bottom-aligned
+
+      const slice = this.groundGroup
+        .create(x, y, 'Stone_Walkway_Slice')
+        .setOrigin(0, 0.5);
+
+      // Match body size to sprite for exact collision
+      slice.body.setSize(slice.width, groundHeight).setOffset(0, 0);
     }
+
+    this.groundGroup.refresh();
   }
 
   private createPlayer() {
     const { height } = this.scale;
 
-    this.player = new Player(this, 200, height - 200);
+    // Get ground height for safe spawning
+    const groundHeight = this.textures
+      .get('Stone_Walkway_Slice')
+      .getSourceImage().height;
+    const spawnX = 100;
+    const spawnY = height - groundHeight - 20; // 20px cushion above ground
+
+    this.player = new Player(this, spawnX, spawnY);
+    this.player.setCollideWorldBounds(true);
   }
 
   private createCollectibles() {
@@ -307,7 +330,7 @@ export class Level1Scene extends Phaser.Scene {
 
   private setupCollisions() {
     // Player with ground
-    this.physics.add.collider(this.player, this.platforms);
+    this.physics.add.collider(this.player, this.groundGroup);
 
     // Remove collectibles collision with ground to prevent jitter
     // this.physics.add.collider(this.collectibles, this.platforms);
@@ -334,14 +357,15 @@ export class Level1Scene extends Phaser.Scene {
   private setupCamera() {
     const { width, height } = this.scale;
 
-    // Camera follow with smooth lerp
-    this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
+    // Camera follow with improved parameters and deadzone
+    this.cameras.main.startFollow(this.player, true, 0.12, 0.12);
     this.cameras.main.setBounds(0, 0, width * 3, height);
+    this.cameras.main.setDeadzone(width * 0.35, height);
   }
 
   private setupDepthOrdering() {
     // Set depth ordering to prevent flickering
-    this.platforms.setDepth(1);
+    this.groundGroup.setDepth(1);
     this.collectibles.setDepth(5);
     this.player.setDepth(10);
     this.treasureChest.setDepth(8);
