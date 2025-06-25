@@ -27,7 +27,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const character = getChosenChar();
     const atlasKey = character;
 
-    super(config.scene, config.x, config.y, atlasKey, `${atlasKey}_idle_0`);
+    // Use run_0 frame since the main atlas only contains run frames
+    super(config.scene, config.x, config.y, atlasKey, `${atlasKey}_run_0`);
 
     this.character = character;
     this.atlasKey = atlasKey;
