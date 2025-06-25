@@ -39,6 +39,9 @@ export class Level1Scene extends Phaser.Scene {
     console.log('[Level1Scene] create');
     const { width, height } = this.scale;
 
+    // Fail-safe camera clear
+    this.cameras.main.fadeIn(300, 0, 0, 0);
+
     // Debug text to verify scene loaded
     this.add
       .text(10, 50, 'Level1Scene loaded', {
@@ -112,11 +115,7 @@ export class Level1Scene extends Phaser.Scene {
   private createPlayer() {
     const { height } = this.scale;
 
-    this.player = new Player({
-      scene: this,
-      x: 200,
-      y: height - 200,
-    });
+    this.player = new Player(this, 200, height - 200);
   }
 
   private createCollectibles() {
@@ -389,8 +388,11 @@ export class Level1Scene extends Phaser.Scene {
   }
 
   update() {
-    // Update player
-    this.player.update();
+    // Update player with cursors
+    if (this.input.keyboard) {
+      const cursors = this.input.keyboard.createCursorKeys();
+      this.player.update(cursors);
+    }
 
     // Handle mobile controls
     if (this.leftPressed) {

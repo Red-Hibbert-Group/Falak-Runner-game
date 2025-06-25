@@ -14,6 +14,9 @@ export class TitleScene extends Phaser.Scene {
     console.log('[TitleScene] create');
     const { width, height } = this.scale;
 
+    // Fail-safe camera clear
+    this.cameras.main.fadeIn(300, 0, 0, 0);
+
     // Debug text to verify scene loaded
     this.add.text(10, 10, 'TitleScene loaded', {
       fontSize: '16px',

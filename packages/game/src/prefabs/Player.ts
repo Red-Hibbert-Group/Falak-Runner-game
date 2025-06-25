@@ -1,85 +1,67 @@
 // Use global Phaser from CDN
 declare const Phaser: any;
 
-import { getChosenChar, CharacterKey } from '../store/GameStore';
-
-export interface PlayerConfig {
-  scene: any;
-  x: number;
-  y: number;
-  character?: CharacterKey; // Make optional since we'll use store value
-}
+import { getChosenChar } from '../store/GameStore';
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
-  private character: CharacterKey;
-  private cursors!: any;
-  private spaceKey!: any;
-  private isGrounded = false;
-  private atlasKey!: string;
-  private animKeys!: {
-    run: string;
-    idle: string;
-    jump: string;
-  };
+  private cursors?: any;
+  private spaceKey?: any;
+  private isOnGround: boolean = false;
+  private runSpeed: number = 300;
+  private jumpVelocity: number = 500;
+  private specialKey: string;
+  private chosenChar: string;
 
-  constructor(config: PlayerConfig) {
-    // Get character from store
-    const character = getChosenChar();
-    const atlasKey = character;
+  constructor(scene: any, x: number, y: number) {
+    // Get character choice from store
+    const chosenChar = getChosenChar();
+    console.log('[Player] Creating player with character:', chosenChar);
 
-    // Use run_0 frame since the main atlas only contains run frames
-    super(config.scene, config.x, config.y, atlasKey, `${atlasKey}_run_0`);
+    // Call parent constructor with chosen character atlas
+    super(scene, x, y, chosenChar, `${chosenChar}_run_0`);
 
-    this.character = character;
-    this.atlasKey = atlasKey;
-    this.animKeys = {
-      run: `${atlasKey}_run`,
-      idle: `${atlasKey}_idle`,
-      jump: `${atlasKey}_jump`,
-    };
+    this.chosenChar = chosenChar;
 
-    console.log(`[Player] Creating player with character: ${character}`);
+    // Set special ability animation based on character
+    this.specialKey =
+      chosenChar === 'aladdin' ? 'aladdin_carpet' : 'moana_water_dash';
 
-    // Add to scene
-    config.scene.add.existing(this);
-    config.scene.physics.add.existing(this);
+    // Add to scene and enable physics
+    this.scene.add.existing(this);
+    this.scene.physics.add.existing(this);
 
-    // Set physics properties
-    const body = this.body as any;
-    body.setCollideWorldBounds(true);
-    body.setSize(64, 96); // Adjust hitbox size
-    body.setOffset(32, 32); // Center the hitbox
+    // Set up physics body with guard
+    if (this.body) {
+      const body = this.body as any;
+      body.setCollideWorldBounds(true);
+      body.setGravityY(0); // Gravity is handled by the physics world
+      body.setSize(32, 48); // Adjust based on sprite size
+      body.setOffset(16, 16); // Center the collision box
+    }
 
-    // Scale down the sprite
-    this.setScale(0.3);
+    // Set initial depth
+    this.setDepth(10);
 
-    // Create animations and input
+    // Create animations if they don't exist
     this.createAnimations();
+
+    // Set up input
     this.setupInput();
+
+    // Start with idle animation
+    this.playIdleAnimation();
   }
 
   private createAnimations() {
-    const scene = this.scene;
+    const anims = this.scene.anims;
+    const char = this.chosenChar;
 
-    // Create animations for the selected character based on proper TexturePacker format
-    if (!scene.anims.exists(`${this.character}-idle`)) {
-      scene.anims.create({
-        key: `${this.character}-idle`,
-        frames: scene.anims.generateFrameNames(`${this.character}_idle`, {
-          prefix: `${this.character}_idle_`,
-          start: 0,
-          end: 3,
-        }),
-        frameRate: 8,
-        repeat: -1,
-      });
-    }
-
-    if (!scene.anims.exists(`${this.character}-run`)) {
-      scene.anims.create({
-        key: `${this.character}-run`,
-        frames: scene.anims.generateFrameNames(this.character, {
-          prefix: `${this.character}_run_`,
+    // Create run animation
+    if (!anims.exists(`${char}_run`)) {
+      anims.create({
+        key: `${char}_run`,
+        frames: anims.generateFrameNames(char, {
+          prefix: `${char}_run_`,
           start: 0,
           end: 7,
         }),
@@ -88,144 +70,150 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       });
     }
 
-    if (!scene.anims.exists(`${this.character}-jump`)) {
-      scene.anims.create({
-        key: `${this.character}-jump`,
-        frames: scene.anims.generateFrameNames(`${this.character}_jump`, {
-          prefix: `${this.character}_jump_`,
-          start: 0,
-          end: 1,
-        }),
-        frameRate: 10,
+    // Create idle animation using first run frame
+    if (!anims.exists(`${char}_idle`)) {
+      anims.create({
+        key: `${char}_idle`,
+        frames: [{ key: char, frame: `${char}_run_0` }],
+        frameRate: 1,
         repeat: 0,
       });
     }
 
-    // Special abilities
-    if (this.character === 'aladdin' && !scene.anims.exists('aladdin-carpet')) {
-      scene.anims.create({
-        key: 'aladdin-carpet',
-        frames: scene.anims.generateFrameNames('aladdin_carpet', {
-          prefix: 'aladdin_carpet_',
-          start: 0,
-          end: 1,
-        }),
-        frameRate: 8,
-        repeat: -1,
-      });
-    }
-
-    if (this.character === 'moana' && !scene.anims.exists('moana-water-dash')) {
-      scene.anims.create({
-        key: 'moana-water-dash',
-        frames: scene.anims.generateFrameNames('moana_water_dash', {
-          prefix: 'moana_water_',
-          start: 0,
-          end: 2,
-        }),
-        frameRate: 12,
+    // Create jump animation using first run frame
+    if (!anims.exists(`${char}_jump`)) {
+      anims.create({
+        key: `${char}_jump`,
+        frames: [{ key: char, frame: `${char}_run_0` }],
+        frameRate: 1,
         repeat: 0,
       });
     }
 
-    // Start with idle animation
-    this.play(`${this.character}-idle`);
+    // Create special ability animation if atlas exists
+    if (this.scene.textures.exists(this.specialKey)) {
+      if (!anims.exists(`${char}_special`)) {
+        anims.create({
+          key: `${char}_special`,
+          frames: anims.generateFrameNames(this.specialKey, {
+            prefix: `${this.specialKey}_`,
+            start: 0,
+            end: 5,
+          }),
+          frameRate: 8,
+          repeat: 0,
+        });
+      }
+    }
   }
 
   private setupInput() {
-    // Set up keyboard input
-    this.cursors = this.scene.input.keyboard!.createCursorKeys();
-    this.spaceKey = this.scene.input.keyboard!.addKey(
-      Phaser.Input.Keyboard.KeyCodes.SPACE
-    );
+    if (this.scene.input.keyboard) {
+      this.cursors = this.scene.input.keyboard.createCursorKeys();
+      this.spaceKey = this.scene.input.keyboard.addKey(
+        Phaser.Input.Keyboard.KeyCodes.SPACE
+      );
+    }
   }
 
-  public update() {
-    // Guard against missing body after scene switches
-    if (!this.body) return;
+  private playIdleAnimation() {
+    if (this.anims) {
+      this.anims.play(`${this.chosenChar}_idle`, true);
+    }
+  }
+
+  private playRunAnimation() {
+    if (this.anims) {
+      this.anims.play(`${this.chosenChar}_run`, true);
+    }
+  }
+
+  private playJumpAnimation() {
+    if (this.anims) {
+      this.anims.play(`${this.chosenChar}_jump`, true);
+    }
+  }
+
+  private playSpecialAnimation() {
+    if (this.anims && this.scene.textures.exists(this.specialKey)) {
+      this.anims.play(`${this.chosenChar}_special`, true);
+    }
+  }
+
+  update(cursors: any) {
+    // Guard update when scene is paused or switched
+    if (
+      !this.active ||
+      !this.body ||
+      !this.scene ||
+      !this.scene.scene.isActive()
+    ) {
+      return;
+    }
 
     const body = this.body as any;
-
-    // Check if grounded
-    this.isGrounded = body.touching.down;
 
     // Handle horizontal movement
-    if (this.cursors.left.isDown) {
-      this.moveLeft();
-    } else if (this.cursors.right.isDown) {
-      this.moveRight();
+    if (cursors.left?.isDown) {
+      body.setVelocityX(-this.runSpeed);
+      this.setFlipX(true);
+      if (this.isOnGround) {
+        this.playRunAnimation();
+      }
+    } else if (cursors.right?.isDown) {
+      body.setVelocityX(this.runSpeed);
+      this.setFlipX(false);
+      if (this.isOnGround) {
+        this.playRunAnimation();
+      }
     } else {
-      this.stopMoving();
-    }
-
-    // Handle jumping - use isDown for continuous input detection
-    if (this.spaceKey.isDown && this.isGrounded) {
-      this.jump();
-    }
-
-    // Handle special abilities
-    if (this.cursors.up.isDown) {
-      this.useSpecialAbility();
-    }
-  }
-
-  public moveLeft() {
-    if (!this.body) return;
-    const body = this.body as any;
-    body.setVelocityX(-200);
-    this.setFlipX(true);
-    if (this.isGrounded) {
-      this.play(`${this.character}-run`, true);
-    }
-  }
-
-  public moveRight() {
-    if (!this.body) return;
-    const body = this.body as any;
-    body.setVelocityX(200);
-    this.setFlipX(false);
-    if (this.isGrounded) {
-      this.play(`${this.character}-run`, true);
-    }
-  }
-
-  public stopMoving() {
-    if (!this.body) return;
-    const body = this.body as any;
-    body.setVelocityX(0);
-    if (this.isGrounded) {
-      this.play(`${this.character}-idle`, true);
-    }
-  }
-
-  public jump() {
-    if (!this.body) return;
-    const body = this.body as any;
-    if (this.isGrounded) {
-      body.setVelocityY(-500);
-      this.play(`${this.character}-jump`);
-      // TODO(cursor): Play jump sound effect
-    }
-  }
-
-  private useSpecialAbility() {
-    if (!this.body) return;
-
-    // Character-specific special abilities
-    if (this.character === 'aladdin') {
-      // Carpet glide - slower fall
-      const body = this.body as any;
-      if (body.velocity.y > 0) {
-        body.setVelocityY(body.velocity.y * 0.7);
-        this.play('aladdin-carpet', true);
-      }
-    } else if (this.character === 'moana') {
-      // Water dash - horizontal boost
-      const body = this.body as any;
-      if (!this.isGrounded) {
-        body.setVelocityX(body.velocity.x > 0 ? 300 : -300);
-        this.play('moana-water-dash', true);
+      body.setVelocityX(0);
+      if (this.isOnGround) {
+        this.playIdleAnimation();
       }
     }
+
+    // Handle jumping
+    if (cursors.up && cursors.up.isDown && this.isOnGround) {
+      body.setVelocityY(-this.jumpVelocity);
+      this.isOnGround = false;
+      this.playJumpAnimation();
+    }
+
+    // Handle special ability (space key)
+    if (this.spaceKey && this.spaceKey.isDown) {
+      this.playSpecialAnimation();
+
+      // Add special ability effects based on character
+      if (this.chosenChar === 'aladdin') {
+        // Carpet flying - temporary speed boost and jump
+        body.setVelocityY(-300);
+        body.setVelocityX(body.velocity.x * 1.5);
+      } else if (this.chosenChar === 'moana') {
+        // Water dash - horizontal dash
+        const dashDirection = this.flipX ? -1 : 1;
+        body.setVelocityX(dashDirection * 600);
+      }
+    }
+
+    // Update ground status
+    this.isOnGround = body.touching.down || body.blocked.down;
+
+    // Update animation based on state
+    if (!this.isOnGround && body.velocity.y > 0) {
+      // Falling
+      this.playJumpAnimation();
+    }
+  }
+
+  // Method to handle collisions with ground
+  onGroundCollision() {
+    this.isOnGround = true;
+  }
+
+  // Method to handle item collection
+  collectItem(points: number) {
+    // This can be expanded to show collection effects
+    console.log(`[Player] Collected item worth ${points} points`);
   }
 }

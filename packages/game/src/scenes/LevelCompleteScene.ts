@@ -14,6 +14,9 @@ export class LevelCompleteScene extends Phaser.Scene {
     const { width, height } = this.scale;
     const gameState = getGameState();
 
+    // Fail-safe camera clear
+    this.cameras.main.fadeIn(300, 0, 0, 0);
+
     // Background
     const bg = this.add.graphics();
     bg.fillGradientStyle(0x4a90e2, 0x4a90e2, 0x87ceeb, 0x87ceeb);

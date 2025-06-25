@@ -10,105 +10,178 @@ export class CharacterSelectScene extends Phaser.Scene {
 
   create() {
     console.log('[CharacterSelectScene] create');
-    const { width, height } = this.scale;
 
-    // Background gradient
-    const bg = this.add.graphics();
-    bg.fillGradientStyle(0x87ceeb, 0x87ceeb, 0xffd700, 0xffd700);
-    bg.fillRect(0, 0, width, height);
+    // Add solid background so never pure black
+    this.cameras.main.setBackgroundColor('#0e397e'); // deep palace-blue
+
+    // Fail-safe camera clear
+    this.cameras.main.fadeIn(300, 0, 0, 0);
+
+    const centerX = this.scale.width * 0.5;
+    const centerY = this.scale.height * 0.55;
+
+    // Responsive layout logic
+    const horizontal = this.scale.width > 500; // wider than mobile portrait?
+    const spacing = Math.min(this.scale.width * 0.25, 180);
+
+    const alPos = horizontal
+      ? { x: centerX - spacing, y: centerY }
+      : { x: centerX, y: centerY - 120 };
+
+    const moPos = horizontal
+      ? { x: centerX + spacing, y: centerY }
+      : { x: centerX, y: centerY + 120 };
 
     // Title
     this.add
-      .text(width * 0.5, height * 0.2, 'Choose Your Adventurer', {
-        fontSize: `${Math.min(width, height) * 0.06}px`,
-        color: '#8B4513',
+      .text(centerX, centerY - (horizontal ? 180 : 220), 'Choose Your Hero', {
+        fontSize: '32px',
+        color: '#ffffff',
         fontStyle: 'bold',
-        stroke: '#FFFFFF',
-        strokeThickness: 4,
       })
       .setOrigin(0.5);
 
-    const centerX = width * 0.5;
-    const centerY = height * 0.5;
-    const spacing = Math.min(width, height) * 0.25;
-
-    // Aladdin character button
-    const alBtn = this.add
-      .image(centerX - spacing, centerY, 'aladdin', 'aladdin_run_0')
+    // Aladdin button
+    const aladdinButton = this.add
+      .image(alPos.x, alPos.y, 'aladdin', 'aladdin_run_0')
       .setInteractive({ cursor: 'pointer' })
-      .setScale(1.2);
+      .setScale(1.3);
 
     // Aladdin label
     this.add
-      .text(centerX - spacing, centerY + 100, 'ALADDIN', {
-        fontSize: `${Math.min(width, height) * 0.04}px`,
-        color: '#8B4513',
+      .text(alPos.x, alPos.y + 80, 'ALADDIN', {
+        fontSize: '18px',
+        color: '#ffffff',
         fontStyle: 'bold',
-        stroke: '#FFFFFF',
-        strokeThickness: 2,
       })
       .setOrigin(0.5);
 
-    // Moana character button
-    const moBtn = this.add
-      .image(centerX + spacing, centerY, 'moana', 'moana_run_0')
+    // Moana button
+    const moanaButton = this.add
+      .image(moPos.x, moPos.y, 'moana', 'moana_run_0')
       .setInteractive({ cursor: 'pointer' })
-      .setScale(1.2);
+      .setScale(1.3);
 
     // Moana label
     this.add
-      .text(centerX + spacing, centerY + 100, 'MOANA', {
-        fontSize: `${Math.min(width, height) * 0.04}px`,
-        color: '#8B4513',
+      .text(moPos.x, moPos.y + 80, 'MOANA', {
+        fontSize: '18px',
+        color: '#ffffff',
         fontStyle: 'bold',
-        stroke: '#FFFFFF',
-        strokeThickness: 2,
       })
       .setOrigin(0.5);
 
-    // Instructions
+    // "Tap to start" helper
     this.add
-      .text(width * 0.5, height * 0.8, 'Click on your character to begin!', {
-        fontSize: `${Math.min(width, height) * 0.03}px`,
-        color: '#4A4A4A',
-        fontStyle: 'italic',
-      })
+      .text(
+        centerX,
+        centerY + (horizontal ? 150 : 210),
+        'Tap a hero to start!',
+        {
+          fontSize: '24px',
+          color: '#fff',
+        }
+      )
       .setOrigin(0.5);
 
-    const startGame = () => {
-      console.log(
-        `[CharacterSelectScene] Starting game with character: ${getChosenChar()}`
-      );
-      this.scene.start('Level1Scene');
+    // Button hover effects
+    aladdinButton.on('pointerover', () => {
+      aladdinButton.setScale(1.4);
+      aladdinButton.setTint(0xffff99);
+    });
+
+    aladdinButton.on('pointerout', () => {
+      aladdinButton.setScale(1.3);
+      aladdinButton.clearTint();
+    });
+
+    moanaButton.on('pointerover', () => {
+      moanaButton.setScale(1.4);
+      moanaButton.setTint(0x99ffff);
+    });
+
+    moanaButton.on('pointerout', () => {
+      moanaButton.setScale(1.3);
+      moanaButton.clearTint();
+    });
+
+    // Button click handlers
+    aladdinButton.on('pointerdown', () => {
+      console.log('[CharacterSelectScene] Aladdin selected');
+      this.selectCharacter('aladdin');
+    });
+
+    moanaButton.on('pointerdown', () => {
+      console.log('[CharacterSelectScene] Moana selected');
+      this.selectCharacter('moana');
+    });
+
+    // Keyboard controls
+    const cursors = this.input.keyboard?.createCursorKeys();
+    const spaceKey = this.input.keyboard?.addKey(
+      Phaser.Input.Keyboard.KeyCodes.SPACE
+    );
+    const enterKey = this.input.keyboard?.addKey(
+      Phaser.Input.Keyboard.KeyCodes.ENTER
+    );
+
+    let selectedIndex = 0; // 0 = Aladdin, 1 = Moana
+    const characters = ['aladdin', 'moana'];
+    const buttons = [aladdinButton, moanaButton];
+
+    // Update selection highlight
+    const updateSelection = () => {
+      buttons.forEach((btn, i) => {
+        if (i === selectedIndex) {
+          btn.setScale(1.4);
+          btn.setTint(i === 0 ? 0xffff99 : 0x99ffff);
+        } else {
+          btn.setScale(1.3);
+          btn.clearTint();
+        }
+      });
     };
 
-    // Add hover effects
-    alBtn.on('pointerover', () => {
-      alBtn.setScale(1.3);
-      alBtn.setTint(0xffff99);
-    });
-    alBtn.on('pointerout', () => {
-      alBtn.setScale(1.2);
-      alBtn.clearTint();
-    });
-    alBtn.on('pointerdown', () => {
-      console.log('[CharacterSelectScene] Aladdin selected');
-      setChosenChar('aladdin');
-      startGame();
+    updateSelection(); // Set initial selection
+
+    cursors?.left?.on('down', () => {
+      selectedIndex = 0;
+      updateSelection();
     });
 
-    moBtn.on('pointerover', () => {
-      moBtn.setScale(1.3);
-      moBtn.setTint(0x99ffff);
+    cursors?.right?.on('down', () => {
+      selectedIndex = 1;
+      updateSelection();
     });
-    moBtn.on('pointerout', () => {
-      moBtn.setScale(1.2);
-      moBtn.clearTint();
+
+    spaceKey?.on('down', () => {
+      console.log(
+        `[CharacterSelectScene] ${characters[selectedIndex]} selected via keyboard`
+      );
+      this.selectCharacter(characters[selectedIndex] as 'aladdin' | 'moana');
     });
-    moBtn.on('pointerdown', () => {
-      console.log('[CharacterSelectScene] Moana selected');
-      setChosenChar('moana');
-      startGame();
+
+    enterKey?.on('down', () => {
+      console.log(
+        `[CharacterSelectScene] ${characters[selectedIndex]} selected via keyboard`
+      );
+      this.selectCharacter(characters[selectedIndex] as 'aladdin' | 'moana');
+    });
+  }
+
+  private selectCharacter(character: 'aladdin' | 'moana') {
+    // Import GameStore at runtime to avoid circular dependencies
+    import('../store/GameStore').then(({ setChosenChar, getChosenChar }) => {
+      setChosenChar(character);
+      console.log(`[CharacterSelectScene] picked ${character} – start Level1`);
+
+      const chosenChar = getChosenChar();
+      console.log(
+        '[CharacterSelectScene] Starting game with character:',
+        chosenChar
+      );
+
+      this.scene.start('Level1Scene');
     });
   }
 }
