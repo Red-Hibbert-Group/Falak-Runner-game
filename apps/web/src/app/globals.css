@@ -7,6 +7,17 @@ body {
   overflow-x: hidden;
 }
 
+/* Ensure Phaser canvas is visible */
+#falak-game canvas {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: 100% !important;
+  height: 100% !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
 /* Game container responsive styles */
 @media (max-width: 1280px) {
   .game-container {

@@ -7,10 +7,10 @@ export default function GameCanvas() {
   const gameRef = useRef<HTMLDivElement>(null);
   const phaserGameRef = useRef<any>(null);
   const initializingRef = useRef<boolean>(false);
-  const [loading, setLoading] = useState(true);
+  const [gameLoaded, setGameLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<string[]>([]);
-  const { setGameRunning } = useGameStore();
+  const { setGameRunning, isGameRunning } = useGameStore();
 
   const addDebugInfo = (message: string) => {
     console.log('DEBUG:', message);
@@ -39,7 +39,6 @@ export default function GameCanvas() {
     const loadGame = async () => {
       if (gameRef.current && !phaserGameRef.current) {
         try {
-          setLoading(true);
           setError(null);
           addDebugInfo('Game container ready, starting module import');
 
@@ -68,7 +67,7 @@ export default function GameCanvas() {
           addDebugInfo('startGame function completed successfully');
 
           setGameRunning(true);
-          setLoading(false);
+          setGameLoaded(true);
           initializingRef.current = false;
 
           addDebugInfo('Falak Runner game initialized successfully!');
@@ -82,7 +81,7 @@ export default function GameCanvas() {
           console.error('Failed to load game:', error);
           console.error('Error stack:', errorStack);
           setError(errorMessage);
-          setLoading(false);
+          setGameLoaded(true); // Hide loading even on error
           initializingRef.current = false;
         }
       } else {
@@ -135,10 +134,12 @@ export default function GameCanvas() {
     );
   }
 
+  const showLoading = !gameLoaded && !error;
+
   return (
-    <div className="fixed inset-0 z-10 flex items-center justify-center bg-gradient-to-b from-blue-400 to-blue-600">
-      {loading && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-white z-20">
+    <div className="fixed inset-0 bg-gradient-to-b from-blue-400 to-blue-600 overflow-hidden">
+      {showLoading && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-white z-50">
           <div className="mb-4">
             <h1 className="text-4xl font-bold text-white text-center mb-2">
               🧞‍♂️ FALAK RUNNER 🌊
@@ -165,9 +166,12 @@ export default function GameCanvas() {
       <div
         ref={gameRef}
         id="falak-game"
-        className="w-full h-full"
+        className="w-full h-full relative z-10"
         style={{
-          display: loading ? 'none' : 'block',
+          display: gameLoaded ? 'block' : 'none',
+          backgroundColor: '#87CEEB', // Sky blue background
+          minHeight: '100vh',
+          minWidth: '100vw',
         }}
       />
     </div>
