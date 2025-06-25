@@ -3,6 +3,7 @@ declare const Phaser: any;
 
 import { PreloadScene } from './scenes/PreloadScene';
 import { TitleScene } from './scenes/TitleScene';
+import { CharacterSelectScene } from './scenes/CharacterSelectScene';
 import { Level1Scene } from './scenes/Level1Scene';
 import { LevelCompleteScene } from './scenes/LevelCompleteScene';
 
@@ -25,7 +26,13 @@ export function startGame(container: HTMLElement): any {
         debug: false,
       },
     },
-    scene: [PreloadScene, TitleScene, Level1Scene, LevelCompleteScene],
+    scene: [
+      PreloadScene,
+      TitleScene,
+      CharacterSelectScene,
+      Level1Scene,
+      LevelCompleteScene,
+    ],
   };
 
   const phaserGame = new Phaser.Game(gameConfig);

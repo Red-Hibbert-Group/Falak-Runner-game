@@ -61,14 +61,14 @@ export class TitleScene extends Phaser.Scene {
       this.instructionText.setText('PRESS SPACEBAR TO PLAY');
     }
 
-    // Handle input
+    // Handle input - proceed to character selection
     this.input.once('pointerdown', () => {
-      console.log('[TitleScene] pointerdown – start Level1Scene');
-      this.scene.start('Level1Scene');
+      console.log('[TitleScene] pointerdown – start CharacterSelectScene');
+      this.scene.start('CharacterSelectScene');
     });
     this.input.keyboard.once('keydown-SPACE', () => {
-      console.log('[TitleScene] SPACE – start Level1Scene');
-      this.scene.start('Level1Scene');
+      console.log('[TitleScene] SPACE – start CharacterSelectScene');
+      this.scene.start('CharacterSelectScene');
     });
 
     // Add blinking effect to instruction text

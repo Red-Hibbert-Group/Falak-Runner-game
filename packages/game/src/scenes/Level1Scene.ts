@@ -31,8 +31,8 @@ export class Level1Scene extends Phaser.Scene {
   }
 
   init(data: { character: 'aladdin' | 'moana' }) {
-    // Character selection data from TitleScene
-    this.data.set('character', data.character || 'aladdin');
+    // Character selection now handled by store, no need for init data
+    console.log('[Level1Scene] init - character selection managed by store');
   }
 
   create() {
@@ -110,14 +110,12 @@ export class Level1Scene extends Phaser.Scene {
   }
 
   private createPlayer() {
-    const character = this.data.get('character') || 'aladdin';
     const { height } = this.scale;
 
     this.player = new Player({
       scene: this,
       x: 200,
       y: height - 200,
-      character: character,
     });
   }
 

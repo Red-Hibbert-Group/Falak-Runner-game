@@ -1,23 +1,43 @@
 // Use global Phaser from CDN
 declare const Phaser: any;
 
+import { getChosenChar, CharacterKey } from '../store/GameStore';
+
 export interface PlayerConfig {
   scene: any;
   x: number;
   y: number;
-  character: 'aladdin' | 'moana';
+  character?: CharacterKey; // Make optional since we'll use store value
 }
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
-  private character: 'aladdin' | 'moana';
+  private character: CharacterKey;
   private cursors!: any;
   private spaceKey!: any;
   private isGrounded = false;
+  private atlasKey!: string;
+  private animKeys!: {
+    run: string;
+    idle: string;
+    jump: string;
+  };
 
   constructor(config: PlayerConfig) {
-    super(config.scene, config.x, config.y, config.character);
+    // Get character from store
+    const character = getChosenChar();
+    const atlasKey = character;
 
-    this.character = config.character;
+    super(config.scene, config.x, config.y, atlasKey, `${atlasKey}_idle_0`);
+
+    this.character = character;
+    this.atlasKey = atlasKey;
+    this.animKeys = {
+      run: `${atlasKey}_run`,
+      idle: `${atlasKey}_idle`,
+      jump: `${atlasKey}_jump`,
+    };
+
+    console.log(`[Player] Creating player with character: ${character}`);
 
     // Add to scene
     config.scene.add.existing(this);
@@ -120,6 +140,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   public update() {
+    // Guard against missing body after scene switches
+    if (!this.body) return;
+
     const body = this.body as any;
 
     // Check if grounded
@@ -146,6 +169,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   public moveLeft() {
+    if (!this.body) return;
     const body = this.body as any;
     body.setVelocityX(-200);
     this.setFlipX(true);
@@ -155,6 +179,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   public moveRight() {
+    if (!this.body) return;
     const body = this.body as any;
     body.setVelocityX(200);
     this.setFlipX(false);
@@ -164,6 +189,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   public stopMoving() {
+    if (!this.body) return;
     const body = this.body as any;
     body.setVelocityX(0);
     if (this.isGrounded) {
@@ -172,6 +198,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   public jump() {
+    if (!this.body) return;
     const body = this.body as any;
     if (this.isGrounded) {
       body.setVelocityY(-500);
@@ -181,6 +208,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   private useSpecialAbility() {
+    if (!this.body) return;
+
     // Character-specific special abilities
     if (this.character === 'aladdin') {
       // Carpet glide - slower fall

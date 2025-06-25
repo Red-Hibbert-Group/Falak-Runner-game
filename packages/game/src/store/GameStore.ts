@@ -8,6 +8,17 @@ export interface GameState {
   resetGame: () => void;
 }
 
+// Character selection types and state
+export type CharacterKey = 'aladdin' | 'moana';
+let chosenChar: CharacterKey = 'aladdin';
+
+export const setChosenChar = (c: CharacterKey) => {
+  chosenChar = c;
+  console.log(`[GameStore] Character set to: ${c}`);
+};
+
+export const getChosenChar = (): CharacterKey => chosenChar;
+
 // We'll use a simple state management without zustand for now
 // TODO(cursor): Integrate zustand properly when setting up the web app
 let gameState: GameState = {
@@ -30,4 +41,4 @@ let gameState: GameState = {
   },
 };
 
-export const getGameState = () => gameState; 
+export const getGameState = () => gameState;
