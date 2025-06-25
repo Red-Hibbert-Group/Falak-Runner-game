@@ -388,6 +388,11 @@ export class Level1Scene extends Phaser.Scene {
   }
 
   update() {
+    // Guard against uninitialized player or inactive scene
+    if (!this.player || !this.player.active || !this.scene.isActive()) {
+      return;
+    }
+
     // Update player with cursors
     if (this.input.keyboard) {
       const cursors = this.input.keyboard.createCursorKeys();

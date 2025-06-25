@@ -93,16 +93,33 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     // Create special ability animation if atlas exists
     if (this.scene.textures.exists(this.specialKey)) {
       if (!anims.exists(`${char}_special`)) {
-        anims.create({
-          key: `${char}_special`,
-          frames: anims.generateFrameNames(this.specialKey, {
-            prefix: `${this.specialKey}_`,
-            start: 0,
-            end: 5,
-          }),
-          frameRate: 8,
-          repeat: 0,
-        });
+        // Auto-detect frame count for special abilities
+        const specials: Record<string, { prefix: string }> = {
+          aladdin: { prefix: 'aladdin_carpet_' },
+          moana: { prefix: 'moana_water_' },
+        };
+
+        const config = specials[char];
+        if (config) {
+          // Get the actual texture and count frames
+          const texture = this.scene.textures.get(this.specialKey);
+          const frameTotal = texture.frameTotal - 1; // subtract __BASE frame
+
+          console.log(
+            `[Player] ${char} special ability: ${frameTotal + 1} frames detected`
+          );
+
+          anims.create({
+            key: `${char}_special`,
+            frames: anims.generateFrameNames(this.specialKey, {
+              prefix: config.prefix,
+              start: 0,
+              end: frameTotal,
+            }),
+            frameRate: 8,
+            repeat: 0,
+          });
+        }
       }
     }
   }
@@ -215,5 +232,47 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   collectItem(points: number) {
     // This can be expanded to show collection effects
     console.log(`[Player] Collected item worth ${points} points`);
+  }
+
+  // Mobile control methods
+  moveLeft() {
+    if (!this.active || !this.body) return;
+
+    const body = this.body as any;
+    body.setVelocityX(-this.runSpeed);
+    this.setFlipX(true);
+    if (this.isOnGround) {
+      this.playRunAnimation();
+    }
+  }
+
+  moveRight() {
+    if (!this.active || !this.body) return;
+
+    const body = this.body as any;
+    body.setVelocityX(this.runSpeed);
+    this.setFlipX(false);
+    if (this.isOnGround) {
+      this.playRunAnimation();
+    }
+  }
+
+  stopMoving() {
+    if (!this.active || !this.body) return;
+
+    const body = this.body as any;
+    body.setVelocityX(0);
+    if (this.isOnGround) {
+      this.playIdleAnimation();
+    }
+  }
+
+  jump() {
+    if (!this.active || !this.body || !this.isOnGround) return;
+
+    const body = this.body as any;
+    body.setVelocityY(-this.jumpVelocity);
+    this.isOnGround = false;
+    this.playJumpAnimation();
   }
 }
