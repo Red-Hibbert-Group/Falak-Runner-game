@@ -1,11 +1,13 @@
-import * as Phaser from 'phaser';
+// Use global Phaser from CDN
+declare const Phaser: any;
+
 import { PreloadScene } from './scenes/PreloadScene';
 import { TitleScene } from './scenes/TitleScene';
 import { Level1Scene } from './scenes/Level1Scene';
 import { LevelCompleteScene } from './scenes/LevelCompleteScene';
 
-export function startGame(container: HTMLElement): Phaser.Game {
-  const config: Phaser.Types.Core.GameConfig = {
+export function startGame(container: HTMLElement): any {
+  const config = {
     type: Phaser.AUTO,
     width: 1200,
     height: 600,
@@ -26,4 +28,4 @@ export function startGame(container: HTMLElement): Phaser.Game {
   };
 
   return new Phaser.Game(config);
-} 
+}

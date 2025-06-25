@@ -1,9 +1,10 @@
-import * as Phaser from 'phaser';
+// Use global Phaser from CDN
+declare const Phaser: any;
 
 export class TitleScene extends Phaser.Scene {
-  private titleText!: Phaser.GameObjects.Text;
-  private instructionText!: Phaser.GameObjects.Text;
-  private spaceKey!: Phaser.Input.Keyboard.Key;
+  private titleText!: any;
+  private instructionText!: any;
+  private spaceKey!: any;
 
   constructor() {
     super({ key: 'TitleScene' });
@@ -14,43 +15,50 @@ export class TitleScene extends Phaser.Scene {
 
     // Background gradient
     const bg = this.add.graphics();
-    bg.fillGradientStyle(0x87CEEB, 0x87CEEB, 0xFFD700, 0xFFD700);
+    bg.fillGradientStyle(0x87ceeb, 0x87ceeb, 0xffd700, 0xffd700);
     bg.fillRect(0, 0, width, height);
 
     // Game title
-    this.titleText = this.add.text(width / 2, height / 2 - 100, 'FALAK RUNNER', {
-      fontSize: '64px',
-      color: '#8B4513',
-      fontStyle: 'bold',
-      stroke: '#FFFFFF',
-      strokeThickness: 4,
-    }).setOrigin(0.5);
+    this.titleText = this.add
+      .text(width / 2, height / 2 - 100, 'FALAK RUNNER', {
+        fontSize: '64px',
+        color: '#8B4513',
+        fontStyle: 'bold',
+        stroke: '#FFFFFF',
+        strokeThickness: 4,
+      })
+      .setOrigin(0.5);
 
     // Subtitle
-    this.add.text(width / 2, height / 2 - 40, 'Adventures of Baby Aladdin & Moana', {
-      fontSize: '24px',
-      color: '#4A4A4A',
-      fontStyle: 'italic',
-    }).setOrigin(0.5);
+    this.add
+      .text(width / 2, height / 2 - 40, 'Adventures of Baby Aladdin & Moana', {
+        fontSize: '24px',
+        color: '#4A4A4A',
+        fontStyle: 'italic',
+      })
+      .setOrigin(0.5);
 
     // Instructions
-    this.instructionText = this.add.text(width / 2, height / 2 + 60, '', {
-      fontSize: '20px',
-      color: '#333333',
-      align: 'center',
-    }).setOrigin(0.5);
+    this.instructionText = this.add
+      .text(width / 2, height / 2 + 60, '', {
+        fontSize: '20px',
+        color: '#333333',
+        align: 'center',
+      })
+      .setOrigin(0.5);
 
     // Set instruction text based on platform
     if (this.sys.game.device.input.touch) {
       this.instructionText.setText('TAP TO PLAY');
-      // Handle touch input
-      this.input.once('pointerdown', this.startGame, this);
     } else {
       this.instructionText.setText('PRESS SPACEBAR TO PLAY');
-      // Handle keyboard input
-      this.spaceKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-      this.spaceKey.once('down', this.startGame, this);
     }
+
+    // Handle input
+    this.input.once('pointerdown', () => this.scene.start('Level1Scene'));
+    this.input.keyboard.once('keydown-SPACE', () =>
+      this.scene.start('Level1Scene')
+    );
 
     // Add blinking effect to instruction text
     this.tweens.add({
@@ -64,8 +72,4 @@ export class TitleScene extends Phaser.Scene {
     // TODO(cursor): Add character selection UI (Aladdin vs Moana)
     // For now, default to Aladdin
   }
-
-  private startGame() {
-    this.scene.start('Level1Scene', { character: 'aladdin' });
-  }
-} 
+}

@@ -1,0 +1,14 @@
+# Placeholder assets directory
+# 
+# Expected assets:
+# - far-background.png
+# - mid-ground.png  
+# - near-foreground.png
+# - Stone_Walkway_Slice.png
+# - gift.png
+# - treasure-chest.png
+# - firework.png
+# - aladdin.png + aladdin.json
+# - moana.png + moana.json
+#
+# TODO(cursor): Add actual game assets here 
